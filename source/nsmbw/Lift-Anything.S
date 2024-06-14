@@ -8,7 +8,7 @@
 
 #define daLightBlock_c_calcCarryPos 0x808555D0
 #define getCenterPos__12dBaseActor_cCFv 0x8006CED0
-#define ActorList 0x80429DA0
+#define ActorList 0x8042A080
 #define FloatMax 0x8042BB38
 #define ActivePhysics_AddToList 0x8008C330
 
@@ -80,7 +80,7 @@ GCT_INSERT(0x8012E6B8, SetCarryFall)
     cmpwi   r31, 0
     beq-    L_SetCarryFall_Out
     // r0 is 0
-    stb     r0, OFFS_ACTOR_CARRY_COOLDOWN(r31)
+    stb     r0, OFFS_ACTOR_CARRIED(r31)
 L_SetCarryFall_Out:
 GCT_INSERT_END(SetCarryFall)
 
@@ -136,9 +136,11 @@ GCT_INSERT(0x80053898, LiftNearest)
     lis     r6, PORT(ActorList)@ha
     lwz     r6, PORT(ActorList)@l(r6)
 
-    // Closest distance so far
-    li      r9, PORT(FloatMax)@ha
-    lfs     f5, PORT(FloatMax)@l(r9) // 1e+09
+    bl      L_LiftNearest_BLTrick
+    .float  1e+09
+L_LiftNearest_BLTrick:
+    mflr    r9
+    lfs     f5, 0(r9) // Closest distance so far
     li      r9, 0 // Nullptr
     b       L_LiftNearest_LoopStart
 
