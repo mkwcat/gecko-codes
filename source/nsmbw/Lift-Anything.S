@@ -86,6 +86,9 @@ GCT_INSERT_END(SetCarryFall)
 
 // Disable damage from carried actor
 GCT_INSERT(0x80146230, BlockCarryDamage)
+    cmpwi   r4, 0
+    beq-    L_BlockCarryDamage_NoCarry
+
     // Only allow damage if the carry cooldown is 0
     lbz     r0, OFFS_ACTOR_CARRY_COOLDOWN(r4)
     cmpwi   r0, 0
