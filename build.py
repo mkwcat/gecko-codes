@@ -173,3 +173,4 @@ def run_build(game, name):
     readme_file.close()
 
 run_build("nsmbw", "Lift-Anything")
+run_build("nsmbw", "Player-1-Can-Change-Character")
