@@ -28,7 +28,7 @@ def process_asm(mapper_from, asmdata, region):
 
         asmdata = asmdata[:offset] + asmdata[offset+4:]
 
-        if region == "P1":
+        if mapper_from is None or region is None or region == "P1":
             continue
 
         npos = 0
@@ -79,6 +79,14 @@ def process_nsmbw(path_build, asmdata, mapper_from, address_map, revision):
     subprocess.run([path_cc, "-mregnames", os.path.join(path_build, "gct_out." + revision + ".s"), "-nostdlib", "-ffreestanding", "-nodefaultlibs", "-o" + os.path.join(path_build, "gct_out." + revision + ".elf"), "-e", "0"])
     subprocess.run([path_objcopy, "-O", "binary", os.path.join(path_build, "gct_out." + revision + ".elf"), os.path.join(path_build, "gct_out." + revision + ".bin")])
 
+def process_nsmbu(path_build, asmdata):
+    sfile = open(os.path.join(path_build, "gct_out.s"), "w")
+    sfile.write(process_asm(None, asmdata, None))
+    sfile.close()
+
+    subprocess.run([path_cc, "-mregnames", os.path.join(path_build, "gct_out.s"), "-nostdlib", "-ffreestanding", "-nodefaultlibs", "-o" + os.path.join(path_build, "gct_out.elf"), "-e", "0"])
+    subprocess.run([path_objcopy, "-O", "binary", os.path.join(path_build, "gct_out.elf"), os.path.join(path_build, "gct_out.bin")])
+
 def add_readme_code(readme, path, revision):
     binary_file = open(path, "rb")
     raw = binary_file.read()
@@ -127,6 +135,8 @@ def run_build(game, name):
         process_nsmbw(path_build, asmdata, mapper_from, address_map, "J2")
         process_nsmbw(path_build, asmdata, mapper_from, address_map, "K")
         process_nsmbw(path_build, asmdata, mapper_from, address_map, "W")
+    elif game == "nsmbu":
+        process_nsmbu(path_build, asmdata)
 
     readme = ""
     # check if the file starts with "// [Gecko]""
@@ -164,6 +174,10 @@ def run_build(game, name):
 
         for i in range(len(regions)):
             readme = add_readme_code(readme, os.path.join("build", path, "gct_out." + regions[i] + ".bin"), rev_names[i])
+    elif game == "nsmbu":
+        readme += "This code is for New Super Mario Bros. U. Please read the [README](README.md) in the current directory for how to use this code.\n\n"
+
+        readme = add_readme_code(readme, os.path.join("build", path, "gct_out.bin"), "USA NSMBU + NSLU")
 
     if not os.path.exists(game):
         os.makedirs(game)
@@ -174,3 +188,5 @@ def run_build(game, name):
 
 run_build("nsmbw", "Lift-Anything")
 run_build("nsmbw", "Player-1-Can-Change-Character")
+run_build("nsmbw", "Duplicate-Anything")
+run_build("nsmbw", "Random-Worldmap-Anim")

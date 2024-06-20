@@ -40,6 +40,70 @@ NAME:;
 	.set NAME##_size, . - NAME; \
 	.align 3
 
+#define GCT_STRING_B_CALL(ADDRESS, NAME, DEST) \
+	b DEST - (PORT(ADDRESS) + (. - NAME))
+
+#define GCT_STRING_BL_CALL(ADDRESS, NAME, DEST) \
+	bl DEST - (PORT(ADDRESS) + (. - NAME))
+
+#define GCT_STRING_BC_CALL(ADDRESS, NAME, FIELD, CONDITION, DEST) \
+	b##CONDITION- FIELD, DEST - (PORT(ADDRESS) + (. - NAME))
+
+#define GCT_STRING_BCL_CALL(ADDRESS, NAME, FIELD, CONDITION, DEST) \
+	b##CONDITION##l- FIELD, DEST - (PORT(ADDRESS) + (. - NAME))
+
+#define GCT_STRING_PTR(ADDRESS, NAME, REG, DEST) \
+	lis REG, (PORT(ADDRESS) + (DEST - NAME))@ha; \
+	addi REG, REG, (PORT(ADDRESS) + (DEST - NAME))@l
+
+#define GCT_STRING_PTR_LWZ(ADDRESS, NAME, REG, DEST) \
+	lis REG, (PORT(ADDRESS) + (DEST - NAME))@ha; \
+	lwz REG, (PORT(ADDRESS) + (DEST - NAME))@l(REG)
+
+#define GCT_STRING_PTR_LBZ(ADDRESS, NAME, REG, DEST) \
+	lis REG, (PORT(ADDRESS) + (DEST - NAME))@ha; \
+	lbz REG, (PORT(ADDRESS) + (DEST - NAME))@l(REG)
+
+#define GCT_STRING_PTR_LWZU(ADDRESS, NAME, REG, TMP_REG, DEST) \
+	lis TMP_REG, (PORT(ADDRESS) + (DEST - NAME))@ha; \
+	lwzu REG, (PORT(ADDRESS) + (DEST - NAME))@l(TMP_REG)
+
+#define GCT_STRING_PTR_LBZU(ADDRESS, NAME, REG, TMP_REG, DEST) \
+	lis TMP_REG, (PORT(ADDRESS) + (DEST - NAME))@ha; \
+	lbzu REG, (PORT(ADDRESS) + (DEST - NAME))@l(TMP_REG)
+
+#define GCT_STRING_PTR_STW(ADDRESS, NAME, REG, TMP_REG, DEST) \
+	lis TMP_REG, (PORT(ADDRESS) + (DEST - NAME))@ha; \
+	stw REG, (PORT(ADDRESS) + (DEST - NAME))@l(TMP_REG)
+
+#define GCT_STRING_PTR_STWU(ADDRESS, NAME, REG, TMP_REG, DEST) \
+	lis TMP_REG, (PORT(ADDRESS) + (DEST - NAME))@ha; \
+	stwu REG, (PORT(ADDRESS) + (DEST - NAME))@l(TMP_REG)
+
+#define GCT_IF_EQUAL_32(ADDRESS, VALUE) \
+	.long 0x20000000 | (PORT(ADDRESS) & 0x1FFFFFF); \
+	.long VALUE
+
+#define GCT_IF_NOT_EQUAL_32(ADDRESS, VALUE) \
+	.long 0x22000000 | (PORT(ADDRESS) & 0x1FFFFFF); \
+	.long VALUE
+
+#define GCT_IF_EQUAL_INST(ADDRESS, INST) \
+	.long 0x20000000 | (PORT(ADDRESS) & 0x1FFFFFF); \
+	INST
+
+#define GCT_IF_NOT_EQUAL_INST(ADDRESS, INST) \
+	.long 0x22000000 | (PORT(ADDRESS) & 0x1FFFFFF); \
+	INST
+
+#define GCT_ENDIF(COUNT) \
+	.long 0xE2000000 | ((COUNT) & 0xFF); \
+	.long 0x00000000
+
+#define GCT_ELSE(COUNT) \
+	.long 0xE2100000 | ((COUNT) & 0xFF); \
+	.long 0x00000000
+
 #define GCT_EXECUTE(NAME) \
 	.long 0xC0000000; \
 	.long (NAME##_size + 1) >> 3; \
@@ -61,6 +125,8 @@ NAME:
 	.long 0xC6000000 | (SRC & 0x1FFFFFF); \
 	.long DEST
 
+#ifndef NO_ASM_CALL_THUNK
+
 #define B_CALL(ADDRESS) \
 	lis r12, PORT(ADDRESS)@h; \
 	ori r12, r12, PORT(ADDRESS)@l; \
@@ -80,6 +146,34 @@ NAME:
 	lis r12, PORT(ADDRESS)@h; \
 	ori r12, r12, PORT(ADDRESS)@l; \
 	b##CONDITION##l- FIELD, asm_call_thunk;
+
+#else
+
+#define B_CALL(ADDRESS) \
+	lis r12, PORT(ADDRESS)@h; \
+	ori r12, r12, PORT(ADDRESS)@l; \
+	mtctr r12; \
+	bctr;
+
+#define BL_CALL(ADDRESS) \
+	lis r12, PORT(ADDRESS)@h; \
+	ori r12, r12, PORT(ADDRESS)@l; \
+	mtctr r12; \
+	bctrl;
+
+#define BC_CALL(FIELD, CONDITION, ADDRESS) \
+	lis r12, PORT(ADDRESS)@h; \
+	ori r12, r12, PORT(ADDRESS)@l; \
+	mtctr r12; \
+	b##CONDITION##ctr- FIELD;
+
+#define BCL_CALL(FIELD, CONDITION, ADDRESS) \
+	lis r12, PORT(ADDRESS)@h; \
+	ori r12, r12, PORT(ADDRESS)@l; \
+	mtctr r12; \
+	b##CONDITION##ctrl- FIELD;
+
+#endif
 
 #define STRING(REG, STRING, SYM) \
 	bl SYM##_end; \
