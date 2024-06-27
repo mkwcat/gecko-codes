@@ -1,2 +1,11 @@
 build
 __pycache__
+
+# Local scripts
+*.sh
+*.bat
+
+# Executables
+*.elf
+*.dol
+*.rpx

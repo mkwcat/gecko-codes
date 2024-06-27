@@ -186,7 +186,12 @@ def run_build(game, name):
     readme_file.write(readme)
     readme_file.close()
 
+# New Super Mario Bros. Wii
 run_build("nsmbw", "Lift-Anything")
 run_build("nsmbw", "Player-1-Can-Change-Character")
 run_build("nsmbw", "Duplicate-Anything")
 run_build("nsmbw", "Random-Worldmap-Anim")
+
+# New Super Mario Bros. U
+run_build("nsmbu", "Lift-Anything-NSMBU")
+run_build("nsmbu", "Save-Anytime")
