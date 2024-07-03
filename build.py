@@ -5,6 +5,11 @@ devkitppc = os.environ.get("DEVKITPPC")
 path_cc = os.path.join(devkitppc, "bin", "powerpc-eabi-gcc")
 path_objcopy = os.path.join(devkitppc, "bin", "powerpc-eabi-objcopy")
 
+ccflags = '-fPIC -fno-rtti -ffreestanding -nodefaultlibs -nostdlib -fno-unwind-tables -fno-exceptions \
+-fmerge-all-constants -ffunction-sections -fdata-sections -fno-short-enums'
+
+warning_flags = '-Wno-attribute-alias'
+
 def process_asm(mapper_from, asmdata, region):
     offset = -1
     while True:
@@ -113,13 +118,13 @@ def add_readme_code(readme, path, revision):
 def run_build(game, name):
     path = os.path.join(game, name)
 
-    path_src = os.path.join("source", path + ".S")
+    path_src = os.path.join("source", path + ".cpp")
     path_build = os.path.join("build", path)
 
     if not os.path.exists(path_build):
         os.makedirs(path_build)
 
-    result = subprocess.run([path_cc, "-E", path_src, "-I."], stdout=subprocess.PIPE)
+    result = subprocess.run([path_cc, "-S", path_src, "-Isource", "-o-", "-D__POWERPC__"] + ccflags.split(" ") + warning_flags.split(" "), stdout=subprocess.PIPE)
     result.check_returncode()
     asmdata = result.stdout.decode("utf-8")
 
@@ -192,6 +197,6 @@ run_build("nsmbw", "Player-1-Can-Change-Character")
 run_build("nsmbw", "Duplicate-Anything")
 run_build("nsmbw", "Random-Worldmap-Anim")
 
-# New Super Mario Bros. U
+# # New Super Mario Bros. U
 run_build("nsmbu", "Lift-Anything-NSMBU")
 run_build("nsmbu", "Save-Anytime")

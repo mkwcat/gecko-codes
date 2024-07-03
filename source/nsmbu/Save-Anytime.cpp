@@ -4,4 +4,10 @@
 
 #include <gct.h>
 
+GCT_ASM(
+// clang-format off
+
 GCT_WRITE_INSTR(0x025A4AB8, nop)
+
+// clang-format on
+) // GCT_ASM
