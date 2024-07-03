@@ -196,6 +196,9 @@ run_build("nsmbw", "Lift-Anything")
 run_build("nsmbw", "Player-1-Can-Change-Character")
 run_build("nsmbw", "Duplicate-Anything")
 run_build("nsmbw", "Random-Worldmap-Anim")
+run_build("nsmbw", "Destroy-Any-Tile")
+run_build("nsmbw", "Fully-Open-Areas")
+run_build("nsmbw", "Connect-All-Pipes")
 
 # # New Super Mario Bros. U
 run_build("nsmbu", "Lift-Anything-NSMBU")

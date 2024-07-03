@@ -147,33 +147,33 @@ NAME:;
 
 #  endif
 
-#  define STRING(REG, STRING, SYM)                                               \
-      bl      SYM##_end;                                                         \
-  SYM:;                                                                          \
-      .string STRING;                                                            \
-      .balign 0x4;                                                               \
-  SYM##_end:;                                                                    \
+#  define STRING(REG, STRING, SYM)                                             \
+      bl      SYM##_end;                                                       \
+  SYM:;                                                                        \
+      .string STRING;                                                          \
+      .balign 0x4;                                                             \
+  SYM##_end:;                                                                  \
       mflr    REG;
 
-#  define SHORT_PTR(REG, SYM, DATA...)                                           \
-      bl      short_##SYM##_end;                                                 \
-  short_##SYM:;                                                                  \
-      .short  DATA;                                                              \
-      .balign 0x4;                                                               \
-  short_##SYM##_end:;                                                            \
+#  define SHORT_PTR(REG, SYM, DATA...)                                         \
+      bl      short_##SYM##_end;                                               \
+  short_##SYM:;                                                                \
+      .short  DATA;                                                            \
+      .balign 0x4;                                                             \
+  short_##SYM##_end:;                                                          \
       mflr    REG;
 
-#  define FLOAT_PTR(REG, SYM, DATA...)                                           \
-      bl      short_##SYM##_end;                                                 \
-  short_##SYM:;                                                                  \
-      .float  DATA;                                                              \
-      .balign 0x4;                                                               \
-  short_##SYM##_end:;                                                            \
+#  define FLOAT_PTR(REG, SYM, DATA...)                                         \
+      bl      short_##SYM##_end;                                               \
+  short_##SYM:;                                                                \
+      .float  DATA;                                                            \
+      .balign 0x4;                                                             \
+  short_##SYM##_end:;                                                          \
       mflr    REG;
 
-#  define PTR(REG, NAME)                                                         \
-      bl      0x4                                                                \
-      mflr    REG;                                                               \
+#  define PTR(REG, NAME)                                                       \
+      bl      0x4;                                                             \
+      mflr    REG;                                                             \
       addi    REG, REG, (NAME) - (.- 0x4);
 
 #  define PTR_LWZ(REG, NAME)                                                   \
