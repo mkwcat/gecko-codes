@@ -200,3 +200,4 @@ run_build("nsmbw", "Random-Worldmap-Anim")
 # # New Super Mario Bros. U
 run_build("nsmbu", "Lift-Anything-NSMBU")
 run_build("nsmbu", "Save-Anytime")
+run_build("nsmbu", "Arbitrary-Course-Load")
