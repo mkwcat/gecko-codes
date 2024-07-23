@@ -4,7 +4,15 @@
 #define _GCT_ASM(...) #__VA_ARGS__
 
 #define GCT_ASM(...)                                                           \
-    asm("# BEGIN GCT ASM\n" _GCT_ASM(__VA_ARGS__) "# END GCT ASM\n");
+    asm("# BEGIN GCT ASM\n"                                                    \
+        ".section .gct_data\n" _GCT_ASM(__VA_ARGS__) "\n# END GCT ASM\n");
+
+asm("    .section .c0_header, \"ax\"\n"
+    "    .global _G_C0_Header\n"
+    "_G_C0_Header:\n"
+    "    .long   0xC0000000\n"
+    "    .long   _G_C0End\n"
+    "    .size   _G_C0_Header, . - _G_C0_Header\n");
 
 // clang-format off
 
@@ -27,6 +35,15 @@
 #define GCT_WRITE_32(ADDRESS, VALUE)                                           \
     .long   0x04000000 | (PORT(ADDRESS) & 0x1FFFFFF);                          \
     .long   VALUE;
+
+#define GCT_WRITE_FLOAT(ADDRESS, VALUE)                                        \
+    .long   0x04000000 | (PORT(ADDRESS) & 0x1FFFFFF);                          \
+    .float  VALUE;
+
+#define GCT_WRITE_DOUBLE(ADDRESS, VALUE)                                       \
+    .long   0x06000000 | (PORT(ADDRESS) & 0x1FFFFFF);                          \
+    .long   0x00000008;                                                        \
+    .double VALUE;
 
 #define GCT_WRITE_INSTR(ADDRESS, ...)                                          \
     .long   0x04000000 | (PORT(ADDRESS) & 0x1FFFFFF);                          \
@@ -153,6 +170,14 @@ NAME:;
       .string STRING;                                                          \
       .balign 0x4;                                                             \
   SYM##_end:;                                                                  \
+      mflr    REG;
+
+#  define BYTE_PTR(REG, SYM, DATA...)                                          \
+      bl      short_##SYM##_end;                                               \
+  short_##SYM:;                                                                \
+      .byte   DATA;                                                            \
+      .balign 0x4;                                                             \
+  short_##SYM##_end:;                                                          \
       mflr    REG;
 
 #  define SHORT_PTR(REG, SYM, DATA...)                                         \

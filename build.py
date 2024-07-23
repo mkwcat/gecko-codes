@@ -5,10 +5,11 @@ devkitppc = os.environ.get("DEVKITPPC")
 path_cc = os.path.join(devkitppc, "bin", "powerpc-eabi-gcc")
 path_objcopy = os.path.join(devkitppc, "bin", "powerpc-eabi-objcopy")
 
-ccflags = '-fPIC -fno-rtti -ffreestanding -nodefaultlibs -nostdlib -fno-unwind-tables -fno-exceptions \
--fmerge-all-constants -ffunction-sections -fdata-sections -fno-short-enums'
+ccflags = '-fPIC -Os -fno-rtti -ffreestanding -nodefaultlibs -nostdlib -fno-unwind-tables -fno-exceptions \
+-fmerge-all-constants -ffunction-sections -fdata-sections -fno-short-enums -fshort-wchar -std=gnu++2b'
+ldflags = '-Wl,--gc-sections -s -n'
 
-warning_flags = '-Wno-attribute-alias'
+warning_flags = '-Wno-attribute-alias -Wno-invalid-offsetof'
 
 def process_asm(mapper_from, asmdata, region):
     offset = -1
@@ -81,7 +82,7 @@ def process_nsmbw(path_build, asmdata, mapper_from, address_map, revision):
     sfile.write(process_asm(mapper_from, asmdata, address_map[revision]))
     sfile.close()
 
-    subprocess.run([path_cc, "-mregnames", os.path.join(path_build, "gct_out." + revision + ".s"), "-nostdlib", "-ffreestanding", "-nodefaultlibs", "-o" + os.path.join(path_build, "gct_out." + revision + ".elf"), "-e", "0"])
+    subprocess.run([path_cc, "-mregnames", os.path.join(path_build, "gct_out." + revision + ".s"), "-nostdlib", "-ffreestanding", "-nodefaultlibs", "-o" + os.path.join(path_build, "gct_out." + revision + ".elf"), "-Tgct.ld", "-lgcc"] + ldflags.split(" "))
     subprocess.run([path_objcopy, "-O", "binary", os.path.join(path_build, "gct_out." + revision + ".elf"), os.path.join(path_build, "gct_out." + revision + ".bin")])
 
 def process_nsmbu(path_build, asmdata):
@@ -89,13 +90,68 @@ def process_nsmbu(path_build, asmdata):
     sfile.write(process_asm(None, asmdata, None))
     sfile.close()
 
-    subprocess.run([path_cc, "-mregnames", os.path.join(path_build, "gct_out.s"), "-nostdlib", "-ffreestanding", "-nodefaultlibs", "-o" + os.path.join(path_build, "gct_out.elf"), "-e", "0"])
+    subprocess.run([path_cc, "-mregnames", os.path.join(path_build, "gct_out.s"), "-nostdlib", "-ffreestanding", "-nodefaultlibs", "-o" + os.path.join(path_build, "gct_out.elf"), "-Tgct.ld"])
     subprocess.run([path_objcopy, "-O", "binary", os.path.join(path_build, "gct_out.elf"), os.path.join(path_build, "gct_out.bin")])
+
+def process_cpp_gecko(data, gct_start):
+    i = 0
+    while i < ((len(data) - 8) - gct_start) >> 3:
+        j = gct_start + (i * 8)
+
+        words = struct.unpack(">II", data[j:j+8])
+        if (words[0] & ~0x01FFFFFF) == 0xC4000000:
+            words2 = struct.unpack(">II", data[j+8:j+16])
+            dest = words2[0]
+            branch = words2[1]
+
+            inst = struct.unpack(">I", data[dest:dest+4])[0]
+            if (inst & ~0x00FFFFFF) == 0x00000000:
+                dest += 4
+
+            origin = j + 8
+            branch |= (dest - origin) & 0x03FFFFFC
+            data[j] = 0xC2 | ((words[0] >> 24) & 0x01)
+            data[origin] = branch >> 24
+            data[origin+1] = (branch >> 16) & 0xFF
+            data[origin+2] = (branch >> 8) & 0xFF
+            data[origin+3] = branch & 0xFF
+            data[origin+4] = 0
+            data[origin+5] = 0
+            data[origin+6] = 0
+            data[origin+7] = 0
+
+        if (words[0] & ~0x00FFFFFF) == 0x4E000000:
+            dest = struct.unpack(">I", data[j+4:j+8])[0]
+            inst = struct.unpack(">I", data[dest:dest+4])[0]
+            if (inst & ~0x00FFFFFF) == 0x00000000:
+                dest += 4
+
+            origin = j + 4
+            branch = 0x48000000
+            branch |= (dest - origin) & 0x03FFFFFC
+            data[origin] = branch >> 24
+            data[origin+1] = (branch >> 16) & 0xFF
+            data[origin+2] = (branch >> 8) & 0xFF
+            data[origin+3] = branch & 0xFF
+
+        i += 1
+
+    return data
+
 
 def add_readme_code(readme, path, revision):
     binary_file = open(path, "rb")
     raw = binary_file.read()
     binary_file.close()
+
+    assert(len(raw) >= 8)
+    cpp_setup_end = struct.unpack(">I", raw[-4:])[0]
+    if cpp_setup_end != 0:
+        raw = process_cpp_gecko(bytearray(raw), cpp_setup_end)
+        cpp_setup_end >>= 3
+        raw = raw[-8:-4] + struct.pack(">I", cpp_setup_end) + raw[:-8]
+    else:
+        raw = raw[:-8]
 
     # add collapsible code block named after the revision
     readme += "<details>\n"
@@ -124,7 +180,11 @@ def run_build(game, name):
     if not os.path.exists(path_build):
         os.makedirs(path_build)
 
-    result = subprocess.run([path_cc, "-S", path_src, "-Isource", "-o-", "-D__POWERPC__"] + ccflags.split(" ") + warning_flags.split(" "), stdout=subprocess.PIPE)
+    tmp_ccflags = ccflags + " -Isource"
+    if game == "nsmbw":
+        tmp_ccflags += " -DWII -DNSMBW -Isource/nsmbw/include -lgcc"
+
+    result = subprocess.run([path_cc, "-S", path_src, "-o-", "-D__POWERPC__"] + tmp_ccflags.split(" ") + warning_flags.split(" "), stdout=subprocess.PIPE)
     result.check_returncode()
     asmdata = result.stdout.decode("utf-8")
 
@@ -199,8 +259,10 @@ run_build("nsmbw", "Random-Worldmap-Anim")
 run_build("nsmbw", "Destroy-Any-Tile")
 run_build("nsmbw", "Fully-Open-Areas")
 run_build("nsmbw", "Connect-All-Pipes")
+run_build("nsmbw", "Cycle-Through-Powerups")
+run_build("nsmbw", "Allow-Movement-During-Cutscenes")
 
-# # New Super Mario Bros. U
+# New Super Mario Bros. U
 run_build("nsmbu", "Lift-Anything-NSMBU")
 run_build("nsmbu", "Save-Anytime")
 run_build("nsmbu", "Arbitrary-Course-Load")
