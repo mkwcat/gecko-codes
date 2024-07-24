@@ -198,6 +198,22 @@ IncreaseCourseInVolume_Out:;
 GCT_INSERT_END(IncreaseCourseInVolume)
 
 
+// Fix the voice used when selecting a star on the powerup menu
+GCT_WRITE_INSTR(0x807B0770, nop)
+GCT_INSERT(0x807B0778, WMStarPowerupSound)
+    SHORT_PTR(r10, D_WMStarPowerupSound_Sounds,
+        SE_VOC_MA_GET_STAR,
+        SE_VOC_LU_GET_STAR,
+        SE_VOC_KO_GET_STAR,
+        SE_VOC_KO2_GET_STAR
+    );
+
+    lwz     r9, 0x0(r6); // Character
+    slwi    r9, r9, 1;
+    lhzx    r4, r10, r9;
+    // TODO: Mini sounds
+GCT_INSERT_END(WMStarPowerupSound)
+
 // Save WMPlayer class
 GCT_INSERT(0x80902ED4, WMChangeP1Model_SaveReg)
     mflr    r0;
