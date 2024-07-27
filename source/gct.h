@@ -107,8 +107,8 @@ NAME:;
     .set    NAME##_size, .- NAME##_start;
 
 #define GCT_WRITE_BRANCH(SRC, DEST)                                            \
-    .long   0xC6000000 | (SRC & 0x1FFFFFF);                                    \
-    .long   DEST;
+    .long   0xC6000000 | (PORT(SRC) & 0x1FFFFFF);                                    \
+    .long   PORT(DEST);
 
 // PowerPC utility macros
 
