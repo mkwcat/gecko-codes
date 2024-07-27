@@ -237,6 +237,9 @@ GCT_INSERT_END(WMChangeP1Model)
 
 #define SETZERO16(addr) GCT_WRITE_16(addr + 2, 0)
 
+// Fix rotation of subplayers around player 1 on worldmap
+SETZERO16(0x808EE0D4)
+
 // Fix FUN_80902ca0
 SETZERO16(0x80902D1C)
 SETZERO16(0x80902D20)
