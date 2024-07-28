@@ -239,6 +239,7 @@ GCT_INSERT_END(WMChangeP1Model)
 
 // Fix rotation of subplayers around player 1 on worldmap
 SETZERO16(0x808EE0D4)
+SETZERO16(0x808EE0E0)
 
 // Fix FUN_80902ca0
 SETZERO16(0x80902D1C)
