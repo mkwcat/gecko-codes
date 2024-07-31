@@ -275,6 +275,8 @@ run_build("nsmbw", "Death-Messages")
 run_build("nsmbw", "Load-More-Gecko-Codes")
 run_build("nsmbw", "World-Map-Expansion-Support")
 run_build("nsmbw", "GameCube-Controller-Support")
+run_build("nsmbw", "Save-Anytime")
+run_build("nsmbw", "Exit-Course-Anytime")
 
 # New Super Mario Bros. U
 run_build("nsmbu", "Lift-Anything-NSMBU")
