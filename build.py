@@ -7,7 +7,7 @@ path_objcopy = os.path.join(devkitppc, "bin", "powerpc-eabi-objcopy")
 
 ccflags = '-fPIC -Os -fno-rtti -ffreestanding -nodefaultlibs -nostdlib -fno-unwind-tables -fno-exceptions \
 -fmerge-all-constants -ffunction-sections -fdata-sections -fno-short-enums -fshort-wchar -std=gnu++2b'
-ldflags = '-Wl,--gc-sections -s -n'
+ldflags = '-Wl,--gc-sections -n'
 
 warning_flags = '-Wno-attribute-alias -Wno-invalid-offsetof'
 
@@ -78,16 +78,16 @@ def process_asm(mapper_from, asmdata, region):
     return asmdata
 
 def process_nsmbw(path_build, asmdata, mapper_from, address_map, revision):
-    sfile = open(os.path.join(path_build, "gct_out." + revision + ".s"), "w")
-    sfile.write(process_asm(mapper_from, asmdata, address_map[revision]))
+    sfile = open(os.path.join(path_build, "gct_out." + revision + ".s"), "wb")
+    sfile.write(process_asm(mapper_from, asmdata, address_map[revision]).encode("utf-8"))
     sfile.close()
 
     subprocess.run([path_cc, "-mregnames", os.path.join(path_build, "gct_out." + revision + ".s"), "-nostdlib", "-ffreestanding", "-nodefaultlibs", "-o" + os.path.join(path_build, "gct_out." + revision + ".elf"), "-Tgct.ld", "-lgcc"] + ldflags.split(" "))
     subprocess.run([path_objcopy, "-O", "binary", os.path.join(path_build, "gct_out." + revision + ".elf"), os.path.join(path_build, "gct_out." + revision + ".bin")])
 
 def process_nsmbu(path_build, asmdata):
-    sfile = open(os.path.join(path_build, "gct_out.s"), "w")
-    sfile.write(process_asm(None, asmdata, None))
+    sfile = open(os.path.join(path_build, "gct_out.s"), "wb")
+    sfile.write(process_asm(None, asmdata, None).encode("utf-8"))
     sfile.close()
 
     subprocess.run([path_cc, "-mregnames", os.path.join(path_build, "gct_out.s"), "-nostdlib", "-ffreestanding", "-nodefaultlibs", "-o" + os.path.join(path_build, "gct_out.elf"), "-Tgct.ld"])
@@ -133,6 +133,15 @@ def process_cpp_gecko(data, gct_start):
             data[origin+1] = (branch >> 16) & 0xFF
             data[origin+2] = (branch >> 8) & 0xFF
             data[origin+3] = branch & 0xFF
+
+        # not handled but to skip the necessary amount of lines
+
+        if (words[0] & ~0x00FFFFFF) == 0xC2000000:
+            i += words[1]
+        elif (words[0] & ~0x00FFFFFF) == 0xC0000000:
+            i += words[1]
+        elif (words[0] & ~0x00FFFFFF) == 0x06000000:
+            i += (words[1] + 7) >> 3 
 
         i += 1
 
@@ -261,6 +270,9 @@ run_build("nsmbw", "Fully-Open-Areas")
 run_build("nsmbw", "Connect-All-Pipes")
 run_build("nsmbw", "Cycle-Through-Powerups")
 run_build("nsmbw", "Allow-Movement-During-Cutscenes")
+run_build("nsmbw", "Fall-Damage")
+run_build("nsmbw", "Death-Messages")
+run_build("nsmbw", "Load-More-Gecko-Codes")
 
 # New Super Mario Bros. U
 run_build("nsmbu", "Lift-Anything-NSMBU")

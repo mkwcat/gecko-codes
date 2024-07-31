@@ -1,10 +1,12 @@
 // [Gecko]
 // $Allow Movement During Cutscenes [mkwcat]
+// *Allows player inputs during certain types of cutscenes. May cause softlocks
+// *and/or unintended side effects depending on how it's used.
 
 #include <gct.h>
 
 GCT_ASM(
-// clang-format off
+    // clang-format off
 
 // Disable pre-applying forced input
 GCT_WRITE_INSTR(0x8005E0A8, b 0x20);
@@ -49,5 +51,5 @@ L_AddForcedMovement_Out:;
     lbz     r0, 0x15(r31);
 GCT_INSERT_END(AddForcedMovement)
 
-// clang-format on
+    // clang-format on
 ) // GCT_ASM

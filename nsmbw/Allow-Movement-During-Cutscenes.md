@@ -1,5 +1,8 @@
 ## Allow Movement During Cutscenes [mkwcat]
 
+Allows player inputs during certain types of cutscenes. May cause softlocks
+and/or unintended side effects depending on how it's used.
+
 This code is for New Super Mario Bros. Wii. Many revisions may be untested.
 
 <details>
