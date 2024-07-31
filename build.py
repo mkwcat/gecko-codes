@@ -273,6 +273,7 @@ run_build("nsmbw", "Allow-Movement-During-Cutscenes")
 run_build("nsmbw", "Fall-Damage")
 run_build("nsmbw", "Death-Messages")
 run_build("nsmbw", "Load-More-Gecko-Codes")
+run_build("nsmbw", "World-Map-Expansion-Support")
 
 # New Super Mario Bros. U
 run_build("nsmbu", "Lift-Anything-NSMBU")
