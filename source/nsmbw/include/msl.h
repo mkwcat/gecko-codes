@@ -3,7 +3,6 @@
 #include <cstdio>
 #include <cstring>
 #include <cwchar>
-#include <stdexcept>
 
 cGCT_IMPORT( //
     0x80004364
@@ -35,8 +34,3 @@ cGCT_IMPORT( //
 cGCT_IMPORT( //
     0x802E19D8
 ) int snprintf(char* __restrict s, size_t n, const char* __restrict format, ...);
-
-void std::__throw_length_error(const char* str)
-{
-    __builtin_unreachable();
-}
