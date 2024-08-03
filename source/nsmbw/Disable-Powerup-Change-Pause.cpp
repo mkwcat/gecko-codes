@@ -1,8 +1,8 @@
 // [Gecko]
 // $Disable Powerup Change Pause [mkwcat]
 // *Disables the short freeze that occurs when changing powerup state or dying.
-// *The player still stop during the animation, but enemies and objects will
-// *continue to move.
+// *The player will still stop during the animation, but other players and
+// *objects can continue to move.
 
 #include <gct.h>
 
