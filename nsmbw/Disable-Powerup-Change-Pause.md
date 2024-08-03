@@ -1,0 +1,120 @@
+## Disable Powerup Change Pause [mkwcat]
+
+Disables the short freeze that occurs when changing powerup state or dying.
+The player still stop during the animation, but enemies and objects will
+continue to move.
+
+This code is for New Super Mario Bros. Wii. Many revisions may be untested.
+
+<details>
+<summary>PAL Rev 1</summary>
+
+```hex
+041410C4 60000000
+041410D0 60000000
+04141020 4E800020
+0413DA30 4E800020
+0413DB30 4E800020
+04150E54 38600000
+04150E98 38600000
+```
+</details>
+
+<details>
+<summary>PAL Rev 2</summary>
+
+```hex
+041410C4 60000000
+041410D0 60000000
+04141020 4E800020
+0413DA30 4E800020
+0413DB30 4E800020
+04150E54 38600000
+04150E98 38600000
+```
+</details>
+
+<details>
+<summary>USA Rev 1</summary>
+
+```hex
+04140F84 60000000
+04140F90 60000000
+04140EE0 4E800020
+0413D8F0 4E800020
+0413D9F0 4E800020
+04150D14 38600000
+04150D58 38600000
+```
+</details>
+
+<details>
+<summary>USA Rev 2</summary>
+
+```hex
+04140F84 60000000
+04140F90 60000000
+04140EE0 4E800020
+0413D8F0 4E800020
+0413D9F0 4E800020
+04150D14 38600000
+04150D58 38600000
+```
+</details>
+
+<details>
+<summary>JPN Rev 1</summary>
+
+```hex
+04140D94 60000000
+04140DA0 60000000
+04140CF0 4E800020
+0413D700 4E800020
+0413D800 4E800020
+04150B24 38600000
+04150B68 38600000
+```
+</details>
+
+<details>
+<summary>JPN Rev 2</summary>
+
+```hex
+04140D94 60000000
+04140DA0 60000000
+04140CF0 4E800020
+0413D700 4E800020
+0413D800 4E800020
+04150B24 38600000
+04150B68 38600000
+```
+</details>
+
+<details>
+<summary>KOR</summary>
+
+```hex
+04141494 60000000
+041414A0 60000000
+041413F0 4E800020
+0413DE00 4E800020
+0413DF00 4E800020
+04151224 38600000
+04151258 38600000
+```
+</details>
+
+<details>
+<summary>TWN</summary>
+
+```hex
+04141494 60000000
+041414A0 60000000
+041413F0 4E800020
+0413DE00 4E800020
+0413DF00 4E800020
+04151224 38600000
+04151258 38600000
+```
+</details>
+

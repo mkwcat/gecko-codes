@@ -17,8 +17,10 @@
 #define OFFS_ACTOR_IS_PLAYER 0x38C
 #define OFFS_ACTOR_PLAYER_ID 0x38D
 
+// #define ENABLE_SILLY_ROTATION 1
+
 GCT_ASM(
-// clang-format off
+    // clang-format off
 
 // Always allow carry patches
 
@@ -73,6 +75,20 @@ L_FinalUpdate_NotCarried:;
     stb     r0, OFFS_ACTOR_CARRY_COOLDOWN(r3);
     blr;
 GCT_INSERT_END(FinalUpdate)
+
+#if ENABLE_SILLY_ROTATION
+
+// Rotate the carried actor to match the player
+GCT_INSERT(0x80855610, RotateCarriedActor)
+    lwz     r0, 0x100(r31); // mAngle.x, mAngle.y
+    stw     r0, 0x100(r30);
+    lhz     r0, 0x104(r31); // mAngle.z
+    sth     r0, 0x104(r30);
+
+    mr      r4, r31; // Original instruction
+GCT_INSERT_END(RotateCarriedActor)
+
+#endif // ENABLE_SILLY_ROTATION
 
 // Handle dropping the carried actor
 GCT_INSERT(0x8012E6B8, SetCarryFall)
@@ -350,5 +366,5 @@ L_RestoreHeldActorPhys_LoopStart:;
     lwz     r0, 0x14(sp); // Original instruction
 GCT_INSERT_END(RestoreHeldActorPhys)
 
-// clang-format on
+    // clang-format on
 ) // GCT_ASM

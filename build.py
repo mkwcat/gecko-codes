@@ -277,6 +277,9 @@ run_build("nsmbw", "World-Map-Expansion-Support")
 run_build("nsmbw", "GameCube-Controller-Support")
 run_build("nsmbw", "Save-Anytime")
 run_build("nsmbw", "Exit-Course-Anytime")
+run_build("nsmbw", "Disable-Powerup-Change-Pause")
+run_build("nsmbw", "Freeze-Any-Enemy")
+run_build("nsmbw", "No-Projectile-Limits")
 
 # New Super Mario Bros. U
 run_build("nsmbu", "Lift-Anything-NSMBU")
