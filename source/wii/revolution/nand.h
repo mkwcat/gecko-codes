@@ -31,24 +31,24 @@ typedef struct {
 
 typedef void(NANDCallback)(s32 result, NANDCommandBlock* block);
 
-cGCT_IMPORT( //
-    0x801D96F0
+cGCT_IMPORT_MULTI( //
+    MKW(0x8019C800), NSMBW(0x801D96F0)
 ) s32 NANDOpen(const char* path, NANDFileInfo* file, u8 mode);
 
-cGCT_IMPORT( //
-    0x801D9990
+cGCT_IMPORT_MULTI( //
+    MKW(0x8019CA80), NSMBW(0x801D9990)
 ) s32 NANDClose(NANDFileInfo* file);
 
-cGCT_IMPORT( //
-    0x801D8B30
+cGCT_IMPORT_MULTI( //
+    MKW(0x8019B7A4), NSMBW(0x801D8B30)
 ) s32 NANDRead(NANDFileInfo* file, void* data, u32 len);
 
-cGCT_IMPORT( //
-    0x801D8D10
+cGCT_IMPORT_MULTI( //
+    MKW(0x8019B964), NSMBW(0x801D8D10)
 ) s32 NANDSeek(NANDFileInfo* file, s32 offset, s32 origin);
 
-cGCT_IMPORT( //
-    0x801D9180
+cGCT_IMPORT_MULTI( //
+    MKW(0x8019BF4C), NSMBW(0x801D9180)
 ) s32 NANDGetLength(NANDFileInfo* file, u32* len);
 
 } // extern "C"

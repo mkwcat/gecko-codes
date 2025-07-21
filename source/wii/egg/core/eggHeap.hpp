@@ -1,13 +1,17 @@
 #pragma once
 
-#include <types.h>
+#if HAS_EGG
 
-cGCT_IMPORT( //
-    0x802B9350
+#  pragma once
+
+#  include <types.h>
+
+cGCT_IMPORT_MULTI( //
+    NSMBW(0x802B9350)
 ) void* __nw(unsigned long size);
 
-cGCT_IMPORT( //
-    0x802B93C0
+cGCT_IMPORT_MULTI( //
+    NSMBW(0x802B93C0)
 ) void __dl(void* ptr);
 
 void* operator new(unsigned int size)
@@ -43,3 +47,5 @@ public:
 };
 
 } // namespace EGG
+
+#endif

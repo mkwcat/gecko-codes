@@ -146,9 +146,9 @@ extern "C" void* AdjustPads(void* wpad, s32 index)
     }
 
     kpad->hold = to & s_lastButtons[index];
-    kpad->trigger = to & ~s_lastButtons[index];
+    kpad->trig = to & ~s_lastButtons[index];
     kpad->release = ~to & s_lastButtons[index];
-    kpad->error = 0;
+    kpad->wpad_err = 0;
 
     if (from & PAD_BUTTON_Y) {
         kpad->hold |= WPAD_BUTTON_1;
@@ -166,9 +166,9 @@ extern "C" void* AdjustPads(void* wpad, s32 index)
     kpad->acc.y = 0;
     kpad->acc.z = tilt;
 
-    kpad->unk_0x58 = -tilt;
+    kpad->acc_vertical.y = -tilt;
 
-    kpad->extensionType = 0;
+    kpad->dev_type = WPADDeviceType::WPAD_DEV_CORE;
 
     return wpad;
 }
@@ -190,8 +190,7 @@ extern "C" u64 SetShakeY(u64 param)
 
     Write8O(key, 0x8C, 0); // Clear it temporarily
 
-    bool fullShake = pad->triggerL == 255 || pad->triggerR == 255 ||
-                     pad->button & PAD_TRIGGER_L ||
+    bool fullShake = pad->triggerL == 255 || pad->triggerR == 255 || pad->button & PAD_TRIGGER_L ||
                      pad->button & PAD_TRIGGER_R || pad->button & PAD_BUTTON_X;
 
     bool shake = fullShake || pad->triggerL > 170 || pad->triggerR > 170;

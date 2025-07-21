@@ -85,6 +85,14 @@ def process_nsmbw(path_build, asmdata, mapper_from, address_map, revision):
     subprocess.run([path_cc, "-mregnames", os.path.join(path_build, "gct_out." + revision + ".s"), "-nostdlib", "-ffreestanding", "-nodefaultlibs", "-o" + os.path.join(path_build, "gct_out." + revision + ".elf"), "-Tgct.ld", "-lgcc"] + ldflags.split(" "))
     subprocess.run([path_objcopy, "-O", "binary", os.path.join(path_build, "gct_out." + revision + ".elf"), os.path.join(path_build, "gct_out." + revision + ".bin")])
 
+def process_mkw(path_build, asmdata):
+    sfile = open(os.path.join(path_build, "gct_out.s"), "wb")
+    sfile.write(process_asm(None, asmdata, None).encode("utf-8"))
+    sfile.close()
+
+    subprocess.run([path_cc, "-mregnames", os.path.join(path_build, "gct_out.s"), "-nostdlib", "-ffreestanding", "-nodefaultlibs", "-o" + os.path.join(path_build, "gct_out.elf"), "-Tgct.ld", "-lgcc"] + ldflags.split(" "))
+    subprocess.run([path_objcopy, "-O", "binary", os.path.join(path_build, "gct_out.elf"), os.path.join(path_build, "gct_out.bin")])
+
 def process_nsmbu(path_build, asmdata):
     sfile = open(os.path.join(path_build, "gct_out.s"), "wb")
     sfile.write(process_asm(None, asmdata, None).encode("utf-8"))
@@ -191,7 +199,9 @@ def run_build(game, name):
 
     tmp_ccflags = ccflags + " -Isource"
     if game == "nsmbw":
-        tmp_ccflags += " -DWII -DNSMBW -Isource/nsmbw/include -lgcc"
+        tmp_ccflags += " -DWII=1 -Isource/wii -DNSMBW=1 -Isource/nsmbw/include -DRVL_WBC=1 -DHAS_EGG=1 -lgcc"
+    elif game == "mkw":
+        tmp_ccflags += " -DWII=1 -Isource/wii -DMKW=1 -Isource/mkw/include -DHAS_EGG=1 -lgcc"
 
     result = subprocess.run([path_cc, "-S", path_src, "-o-", "-D__POWERPC__"] + tmp_ccflags.split(" ") + warning_flags.split(" "), stdout=subprocess.PIPE)
     result.check_returncode()
@@ -209,6 +219,8 @@ def run_build(game, name):
         process_nsmbw(path_build, asmdata, mapper_from, address_map, "J2")
         process_nsmbw(path_build, asmdata, mapper_from, address_map, "K")
         process_nsmbw(path_build, asmdata, mapper_from, address_map, "W")
+    elif game == "mkw":
+        process_mkw(path_build, asmdata)
     elif game == "nsmbu":
         process_nsmbu(path_build, asmdata)
 
@@ -248,6 +260,10 @@ def run_build(game, name):
 
         for i in range(len(regions)):
             readme = add_readme_code(readme, os.path.join("build", path, "gct_out." + regions[i] + ".bin"), rev_names[i])
+    elif game == "mkw":
+        readme += "This code is for Mario Kart Wii."
+
+        readme = add_readme_code(readme, os.path.join("build", path, "gct_out.bin"), "PAL")
     elif game == "nsmbu":
         readme += "This code is for New Super Mario Bros. U. Please read the [README](README.md) in the current directory for how to use this code.\n\n"
 
@@ -281,8 +297,12 @@ run_build("nsmbw", "Disable-Powerup-Change-Pause")
 run_build("nsmbw", "Freeze-Any-Enemy")
 run_build("nsmbw", "No-Projectile-Limits")
 
-# New Super Mario Bros. U
+# # New Super Mario Bros. U
 run_build("nsmbu", "Lift-Anything-NSMBU")
 run_build("nsmbu", "Save-Anytime")
 run_build("nsmbu", "Arbitrary-Course-Load")
 run_build("nsmbu", "Duplicate-Anything-NSMBU")
+
+# Mario Kart Wii
+run_build("mkw", "Load-More-Gecko-Codes")
+run_build("mkw", "Balance-Board-Support")
