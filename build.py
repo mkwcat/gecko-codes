@@ -296,6 +296,7 @@ run_build("nsmbw", "Exit-Course-Anytime")
 run_build("nsmbw", "Disable-Powerup-Change-Pause")
 run_build("nsmbw", "Freeze-Any-Enemy")
 run_build("nsmbw", "No-Projectile-Limits")
+run_build("nsmbw", "Midair-Crouching")
 
 # # New Super Mario Bros. U
 run_build("nsmbu", "Lift-Anything-NSMBU")

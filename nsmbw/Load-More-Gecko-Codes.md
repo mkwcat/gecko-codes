@@ -1,4 +1,4 @@
-## Load More Gecko Codes
+## Load More Gecko Codes [mkwcat]
 
 Load a gecko code file from the save data directory and process it using the
 current codehandler. The purpose is to allow loading more lines of code than
