@@ -1,8 +1,8 @@
 #pragma once
 
-#include "d_base.hpp"
-#include <dol/mLib/m_vec.hpp>
-#include <dol/mLib/m_angle.hpp>
+#include "d_base.h"
+#include "machine/m_angle.h"
+#include "machine/m_vec.h"
 
 /**
  * Basic actor class, supporting positioning, rotation and
@@ -20,7 +20,7 @@ public:
          * Used for behind-the-scenes actors (such as dCsSeqMng_c).
          */
         ACTOR_SYSTEM,
-        
+
         /**
          * Used for actors that are affected by cutscenes.
          */
@@ -95,8 +95,8 @@ public:
      */
     /* 0x0AC */ mVec3_c mPos;
 
-    /** 
-     * The actor's position in the previous frame. 
+    /**
+     * The actor's position in the previous frame.
      */
     /* 0x0B8 */ mVec3_c mLastPos;
 

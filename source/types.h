@@ -14,7 +14,11 @@ typedef signed long long s64;
 typedef float f32;
 typedef double f64;
 
+#ifdef CLANGD
+typedef unsigned long size_t;
+#else
 typedef unsigned int size_t;
+#endif
 
 typedef int BOOL;
 #define TRUE 1

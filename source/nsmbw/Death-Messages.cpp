@@ -14,9 +14,9 @@
 
 #include <algorithm>
 #include <array>
-#include <dol/bases/d_a_player.hpp>
-#include <dol/bases/d_game_com.hpp>
-#include <egg/core/eggHeap.hpp>
+#include <d_player/d_a_player.h>
+#include <d_system/d_game_com.h>
+#include <egg/core/eggHeap.h>
 #include <msl.h>
 #include <new>
 #include <numeric>
@@ -243,8 +243,7 @@ struct PackedActorNames {
 };
 
 template <u32 P, u32 N>
-constexpr PackedActorNames<P>
-ProcessPackActorNames(const ActorName (&names)[N], u32& offset)
+constexpr PackedActorNames<P> ProcessPackActorNames(const ActorName (&names)[N], u32& offset)
 {
     PackedActorNames<P> packedNames = {};
 
@@ -342,8 +341,7 @@ const char* getActorFormattedName(dActor_c* actor)
         i += 3 + len;
     }
 
-    return actor->mpNameString != nullptr ? actor->mpNameString
-                                          : "an unknown force";
+    return actor->mpNameString != nullptr ? actor->mpNameString : "an unknown force";
 }
 
 nw4r::lyt::res::TextureList s_txl1 = {
@@ -538,9 +536,7 @@ void dAcPy_c::setDeathMessage(const char* message, const char* enemy)
     *(u32*) &textBoxRes.main.bottomColor = s_playerColors[player];
 
     char formatted[128] = {0};
-    snprintf(
-        formatted, sizeof(formatted), message, s_playerNames[player], enemy
-    );
+    snprintf(formatted, sizeof(formatted), message, s_playerNames[player], enemy);
 
     mbstowcs(textBoxRes.message, formatted, 128);
 
@@ -580,7 +576,7 @@ cGCT_INSERT_POINTER( //
 
         switch (ProfileName(source->mProfName)) {
         default:
-            message = (const char*[]){
+            message = (const char*[]) {
                 "%s came into contact with %s", "%s lost it to %s",
                 "%s tried to give %s a hug",    "%s lost a fight with %s",
                 "%s reached an impassable %s",
@@ -677,17 +673,14 @@ cGCT_INSERT_POINTER( //
 
     switch (type) {
     default:
-        snprintf(
-            message, sizeof(message), "%s fell out of the world (type %d)",
-            name, type
-        );
+        snprintf(message, sizeof(message), "%s fell out of the world (type %d)", name, type);
         break;
 
     case 2:
         snprintf(message, sizeof(message), "%s was left behind", name);
         snprintf(
             message, sizeof(message),
-            (const char*[]){
+            (const char*[]) {
                 "%s was left behind",
                 "%s mysteriously vanished",
                 "%s was crushed between the screen and a heavy object",
@@ -699,7 +692,7 @@ cGCT_INSERT_POINTER( //
     case 3:
         snprintf(
             message, sizeof(message),
-            (const char*[]){
+            (const char*[]) {
                 "%s fell out of the world",
                 "%s mysteriously vanished",
             }[dGameCom_c::getRandom(2)],
@@ -713,8 +706,7 @@ cGCT_INSERT_POINTER( //
     dAcPy_c::setBalloonInDispOut__IMPL(type);
 }
 
-extern "C" bool
-dGameDisplay_InitDeathMsg(void* resourceAccessor, void* drawInfo)
+extern "C" bool dGameDisplay_InitDeathMsg(void* resourceAccessor, void* drawInfo)
 {
     s_deathMsgMgr = new DeathMsgMgr();
     s_resBlockSet.resourceAccessor = resourceAccessor;
@@ -723,8 +715,7 @@ dGameDisplay_InitDeathMsg(void* resourceAccessor, void* drawInfo)
     return true;
 }
 
-cGCT_IMPORT(0x802ABBA0
-) void Pane_CalculateMtx(nw4r::lyt::Pane* pane, void* drawInfo);
+cGCT_IMPORT(0x802ABBA0) void Pane_CalculateMtx(nw4r::lyt::Pane* pane, void* drawInfo);
 cGCT_IMPORT(0x802ABEA0) void Pane_Draw(nw4r::lyt::Pane* pane, void* drawInfo);
 
 cGCT_INSERT_BL( //

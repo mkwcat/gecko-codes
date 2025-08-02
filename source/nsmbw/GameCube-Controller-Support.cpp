@@ -16,7 +16,7 @@
 
 #include "GameCube-Controller-Support/PAD.cpp"
 #include "GameCube-Controller-Support/SI.cpp"
-#include <dol/bases/d_a_player_manager.hpp>
+#include <d_system/d_a_player_manager.h>
 #include <revolution/kpad.h>
 
 GCT_ASM(

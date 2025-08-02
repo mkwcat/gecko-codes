@@ -9,7 +9,7 @@
 #include <gct-use-cpp.h>
 #include <gct.h>
 
-#include <dol/bases/d_a_player.hpp>
+#include <d_player/d_a_player.h>
 #include <sound.hpp>
 #include <types.h>
 

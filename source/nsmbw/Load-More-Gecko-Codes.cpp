@@ -12,7 +12,7 @@
 #include <gct-use-cpp.h>
 #include <gct.h>
 
-#include <egg/core/eggHeap.hpp>
+#include <egg/core/eggHeap.h>
 #include <revolution/nand.h>
 
 GCT_ASM(

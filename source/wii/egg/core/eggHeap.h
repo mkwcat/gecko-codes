@@ -14,7 +14,7 @@ cGCT_IMPORT_MULTI( //
     NSMBW(0x802B93C0)
 ) void __dl(void* ptr);
 
-void* operator new(unsigned int size)
+void* operator new(size_t size)
 {
     return __nw(size);
 }

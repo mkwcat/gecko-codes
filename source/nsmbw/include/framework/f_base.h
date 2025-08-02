@@ -1,6 +1,6 @@
 #pragma once
 
-#include "f_base_id.hpp"
+#include "f_base_id.h"
 #include <types.h>
 
 template <u32 N>
@@ -17,51 +17,47 @@ consteval bool IsVoid(const char (&str)[N])
     return true;
 }
 
-#define DECL_VIRTUAL(_OFFSET, _RETURN, _NAME, ...)                             \
-    template <class... Args>                                                   \
-    _RETURN _NAME(Args... args)                                                \
-    {                                                                          \
-        auto func = (_RETURN(*)(decltype(this), ##__VA_ARGS__))(               \
-            this->vtable[_OFFSET >> 2]                                         \
-        );                                                                     \
-        if constexpr (IsVoid(#_RETURN)) {                                      \
-            func(this, args...);                                               \
-        } else {                                                               \
-            return func(this, args...);                                        \
-        }                                                                      \
-    }                                                                          \
-                                                                               \
+#define DECL_VIRTUAL(_OFFSET, _RETURN, _NAME, ...)                                                 \
+    template <class... Args>                                                                       \
+    inline _RETURN _NAME(Args... args)                                                             \
+    {                                                                                              \
+        auto func = (_RETURN(*)(decltype(this), ##__VA_ARGS__))(this->vtable[_OFFSET >> 2]);       \
+        if constexpr (IsVoid(#_RETURN)) {                                                          \
+            func(this, args...);                                                                   \
+        } else {                                                                                   \
+            return func(this, args...);                                                            \
+        }                                                                                          \
+    }                                                                                              \
+                                                                                                   \
     virtual _RETURN _NAME##__IMPL(__VA_ARGS__)
 
-#define IMPORT_VIRTUAL(_ADDRESS, _OFFSET, _RETURN, _NAME, ...)                 \
-    template <class... Args>                                                   \
-    _RETURN _NAME(Args... args)                                                \
-    {                                                                          \
-        auto func = (_RETURN(*)(decltype(this), ##__VA_ARGS__))(               \
-            this->vtable[_OFFSET >> 2]                                         \
-        );                                                                     \
-        if constexpr (IsVoid(#_RETURN)) {                                      \
-            func(this, args...);                                               \
-        } else {                                                               \
-            return func(this, args...);                                        \
-        }                                                                      \
-    }                                                                          \
-                                                                               \
+#define IMPORT_VIRTUAL(_ADDRESS, _OFFSET, _RETURN, _NAME, ...)                                     \
+    template <class... Args>                                                                       \
+    inline _RETURN _NAME(Args... args)                                                             \
+    {                                                                                              \
+        auto func = (_RETURN(*)(decltype(this), ##__VA_ARGS__))(this->vtable[_OFFSET >> 2]);       \
+        if constexpr (IsVoid(#_RETURN)) {                                                          \
+            func(this, args...);                                                                   \
+        } else {                                                                                   \
+            return func(this, args...);                                                            \
+        }                                                                                          \
+    }                                                                                              \
+                                                                                                   \
     cGCT_IMPORT_ATTR(_ADDRESS) virtual _RETURN _NAME##__IMPL(__VA_ARGS__)
 
 #define DECL_VIRTUAL_N(_RETURN, _NAME, ...) _RETURN _NAME##__IMPL(__VA_ARGS__)
 
-#define IMPORT_VIRTUAL_N(_ADDRESS, _RETURN, _NAME, ...)                        \
+#define IMPORT_VIRTUAL_N(_ADDRESS, _RETURN, _NAME, ...)                                            \
     cGCT_IMPORT_ATTR(_ADDRESS) _RETURN _NAME##__IMPL(__VA_ARGS__)
 
 struct DummyStruct {
 };
 
-#define ENABLE_VTABLE_FIX                                                      \
-    DummyStruct _vtFix_##__COUNTER__ = [&]() {                                 \
-        vtable = *reinterpret_cast<u32**>(this);                               \
-        asm volatile("" : "=rm"(*reinterpret_cast<u32*>(this)));               \
-        return DummyStruct{};                                                  \
+#define ENABLE_VTABLE_FIX                                                                          \
+    DummyStruct _vtFix_##__COUNTER__ = [&]() {                                                     \
+        vtable = *reinterpret_cast<u32**>(this);                                                   \
+        asm volatile("" : "=rm"(*reinterpret_cast<u32*>(this)));                                   \
+        return DummyStruct{};                                                                      \
     }();
 
 class fBase_c

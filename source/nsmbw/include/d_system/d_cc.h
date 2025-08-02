@@ -1,0 +1,518 @@
+#pragma once
+
+#include <machine/m_vec.h>
+#include <revolution/types.h>
+
+class dActor_c;
+
+/**
+ * Collider ("Collision Check") class - handles collisions between actors.
+ *
+ * It also includes logic that handles collisions
+ * within a horizontally looping stage (like 2-C).
+ */
+class dCc_c
+{
+    SIZE_ASSERT(0xA4);
+
+    /* 0x00 VTABLE 0x803110F0 */
+
+    // Padding for GCC, as it expects the vtable pointer to be +0x8 from the
+    // beginning of the vtable.
+    virtual void _0()
+    {
+    }
+
+    virtual void _4()
+    {
+    }
+
+public:
+    enum class CC_SHAPE_e : u8 {
+        /**
+         * Rectangular collider
+         */
+        CC_SHAPE_BOX = 0,
+        /**
+         * Circular / elliptical collider
+         */
+        CC_SHAPE_CIRCLE = 1,
+        /**
+         * Trapezoid-shaped collider (left/right sides are parallel)
+         */
+        CC_SHAPE_DAIKEI_UD = 2,
+        /**
+         * Trapezoid-shaped collider (top/bottom sides are parallel)
+         */
+        CC_SHAPE_DAIKEI_LR = 3,
+    };
+
+    enum CC_DATA_FLAG_e {
+        /**
+         * Don't set the collision offset if a collision occurs
+         */
+        CC_DATA_NO_OFFSET = 1,
+        /**
+         * When another collider collides with this one,
+         * don't update the result or execute the callback
+         * on the other collider.
+         */
+        CC_DATA_PASSIVE = 4
+    };
+
+    enum CC_FLAG_e {
+        /**
+         * Disables all collisions with this collider
+         */
+        CC_DISABLE = 2,
+    };
+
+    enum CC_CATEGORY_e {
+        CAT_PLAYER_GENERIC,
+        /**
+         * This collider can attack, which means it will use mAttackCategory and
+         * mAttackCategoryInteract to further check if the colliders will collide.
+         */
+        CAT_PLAYER_ATTACK,
+        CAT_YOSHI,
+        CAT_ENTITY,
+        CAT_BALLOON,
+        CAT_ITEM,
+        CAT_PROJECTILE,
+        CAT_CANNON,
+        CAT_GOAL_POLE
+    };
+
+    enum CC_ATTACK_e {
+        ATTACK_FIRE = 1,
+        ATTACK_ICE,
+        ATTACK_STAR,
+        ATTACK_ICE_BREAK,
+        ATTACK_SLIP,
+        ATTACK_KOOPA_FIRE,
+        ATTACK_HIP_ATTK,
+        ATTACK_WIRE_NET,
+        ATTACK_SHELL,
+        ATTACK_PENGUIN_SLIDE,
+        ATTACK_SPIN,
+        ATTACK_UNK12,
+        ATTACK_SPIN_FALL,
+        ATTACK_FIRE_2,
+        ATTACK_YOSHI_EAT,
+        ATTACK_YOSHI_MOUTH,
+        ATTACK_CANNON,
+        ATTACK_SPIN_LIFT_UP,
+        ATTACK_YOSHI_BULLET,
+        ATTACK_YOSHI_FIRE,
+        ATTACK_ICE_2,
+        ATTACK_SAND_PILLAR
+    };
+
+    /**
+     * A structure that contains information about a collider.
+     */
+    struct sCcDatNewF {
+        SIZE_ASSERT(0x24);
+
+        /**
+         * The X offset of the collider.
+         */
+        /* 0x00 */ float mOffsetX;
+        /**
+         * The Y offset of the collider.
+         */
+        /* 0x04 */ float mOffsetY;
+
+        /**
+         * The width of the collider.
+         * Note: This is the distance from the center to the edge, so half the actual width.
+         */
+        /* 0x08 */ float mWidth;
+
+        /**
+         * The height of the collider.
+         * Note: This is the distance from the center to the edge, so half the actual height.
+         */
+        /* 0x0C */ float mHeight;
+
+        /**
+         * The category of this collider. See CC_CATEGORY_e.
+         */
+        /* 0x10 */ u8 mCategory;
+        /**
+         * The attack category of this collider. See CC_ATTACK_e.
+         */
+        /* 0x11 */ u8 mAttackCategory;
+        /**
+         * Which categories this collider should be able to collide with.
+         * This is a bitfield with the bits enumerated by CC_CATEGORY_e.
+         */
+        /* 0x14 */ u32 mCategoryInteract;
+        /**
+         * Which attack categories this collider should be able to receive.
+         * This is a bitfield with the bits enumerated by CC_ATTACK_e.
+         */
+        /* 0x18 */ u32 mAttackCategoryInteract;
+
+        /**
+         * Flags for this collider. See CC_DATA_FLAG_e.
+         */
+        /* 0x1C */ u16 mFlag;
+
+        /**
+         * The callback to execute when a collision occurs.
+         */
+        /* 0x20 */ void (*mCallback)(dCc_c*, dCc_c*);
+    };
+
+private:
+    /**
+     * [Some unused class - but needed here because it has a static initializer.]
+     * @unofficial
+     */
+    class InitializedUnkClass
+    {
+    public:
+        u32 a, b, c;
+        bool d, e;
+
+        static class _init
+        {
+        public:
+            _init()
+            {
+                if (!dCc_c::msIsInitialized) {
+                    dCc_c::msInitializedUnkClass.b = 0xa000a0;
+                    dCc_c::msInitializedUnkClass.c = 0xa00000a0;
+                    dCc_c::msIsInitialized = true;
+                }
+            }
+        } _initializer;
+    };
+
+    // @unofficial
+    static char msIsInitialized; // [This might also be an auto-generated guard variable]
+    // @unofficial
+    static InitializedUnkClass msInitializedUnkClass;
+
+public:
+    // ------------
+    // Constructors
+    // ------------
+
+    /**
+     * Constructs a new collider.
+     */
+    dCc_c();
+
+    /**
+     * Destroys the collider.
+     */
+    virtual void __dt(int type);
+
+public:
+    // ----------------
+    // Member Functions
+    // ----------------
+
+    /**
+     * Clears the data related to previous collisions.
+     */
+    void clear();
+
+    /**
+     * Places this collider in the collider list.
+     */
+    void entry();
+
+    /**
+     * Removes this collider from the collider list.
+     */
+    void release();
+
+    /**
+     * Registers an owner actor to this collider and sets the collider data.
+     * @unofficial
+     * @param actor The actor to register.
+     * @param collInfo The collider data to set.
+     */
+    void set(dActor_c* actor, sCcDatNewF* collInfo);
+
+    /**
+     * Registers an owner actor to this collider and sets the collider data.
+     * @unofficial
+     * @param actor The actor to register.
+     * @param collInfo The collider data to set.
+     * @param nonCollideMask The non-collide mask to set.
+     */
+    void set(dActor_c* actor, sCcDatNewF* collInfo, u8 nonCollideMask);
+
+    /**
+     * Sets a friend actor for this collider.
+     */
+    void setFriendActor(dActor_c* actor)
+    {
+        mFriendActor = actor;
+    }
+
+    /**
+     * Gets the result of a hit check.
+     * @param mask The mask to check.
+     * @return The result of the hit check.
+     */
+    u16 isHit(u16 mask) const;
+
+    /**
+     * Gets the result of an attack hit check.
+     * @param mask The mask to check.
+     * @return The result of the attack hit check.
+     */
+    u16 isHitAtDmg(u16 mask) const;
+
+    /**
+     * Gets the Y position of the top of the collider.
+     */
+    float getTopPos();
+    /**
+     * Gets the Y position of the bottom of the collider.
+     */
+    float getUnderPos();
+    /**
+     * Gets the Y position of the center of the collider.
+     */
+    float getCenterPosY();
+
+    /**
+     * Gets the X position of the right side of the collider.
+     */
+    float getRightPos();
+    /**
+     * Gets the X position of the left side of the collider.
+     */
+    float getLeftPos();
+    /**
+     * Gets the X position of the center of the collider.
+     */
+    float getCenterPosX();
+
+    /**
+     * Gets the center of the collider as a vector.
+     */
+    inline mVec2_c getCenterVec()
+    {
+        return mVec2_c(getCenterPosX(), getCenterPosY());
+    }
+
+    /**
+     * Checks if this collider is inside another collider.
+     *
+     * @param other The collider to check against.
+     */
+    bool isInside(dCc_c* other);
+
+private:
+    float getTrpOffset(int idx)
+    {
+        return mTrpOffsets[idx];
+    }
+
+public:
+    // ----------------
+    // Static Functions
+    // ----------------
+
+    /**
+     * Checks for collisions between two colliders.
+     *
+     * @param c1 The first collider.
+     * @param c2 The second collider.
+     * @param active Whether to update the result and execute the callback if a collision occurs.
+     * @return Whether the first collider collided with the second collider.
+     */
+    static bool checkCollision(dCc_c* c1, dCc_c* c2, int active);
+
+    /**
+     * Check all colliders against each other for collisions.
+     */
+    static void execute();
+
+    /**
+     * Clears the collider list.
+     *
+     * It also sets the hit check to the correct type (normal / looping stage).
+     * Note that this does not clean up the colliders themselves!
+     */
+    static void reset();
+
+private:
+    /**
+     * A hit check function for rectangular colliders. Used in _hitCheckNormal and
+     * _hitCheckLoop.
+     * @param c1 The first collider.
+     * @param c2 The second collider.
+     * @param pos1 The position of the first collider.
+     * @param pos2 The position of the second collider.
+     */
+    static bool _hitCheckSquare(dCc_c* c1, dCc_c* c2, mVec2_c pos1, mVec2_c pos2);
+
+    /**
+     * Check two rectangular colliders against each other for collisions without stage looping.
+     */
+    static bool _hitCheckNormal(dCc_c* c1, dCc_c* c2);
+    /**
+     * Check two rectangular colliders against each other for collisions with stage looping.
+     */
+    static bool _hitCheckLoop(dCc_c* c1, dCc_c* c2);
+    /**
+     * Check two circle colliders against each other for collisions.
+     */
+    static bool _hitCheckCircle(dCc_c* c1, dCc_c* c2);
+    /**
+     * Check a rectangular and a circle collider against each other for collisions.
+     */
+    static bool _hitCheckBoxCircle(dCc_c* c1, dCc_c* c2);
+
+    static int _lineCheckUD(mVec2_c p1, mVec2_c p2, float p3, float p4);
+    /**
+     * Check a rectangular collider against a trapezoid-shaped collider for collisions.
+     */
+    static bool _hitCheckDaikeiUD_R(dCc_c* ccBox, dCc_c* ccTrp);
+    /**
+     * Check a trapezoid-shaped collider against a rectangular collider for collisions.
+     */
+    static bool _hitCheckDaikeiUD(dCc_c* ccTrp, dCc_c* ccBox);
+
+    static int _lineCheckLR(mVec2_c p1, mVec2_c p2, float p3, float p4);
+    /**
+     * Check a rectangular collider against a trapezoid-shaped collider for collisions.
+     */
+    static bool _hitCheckDaikeiLR_R(dCc_c* ccBox, dCc_c* ccTrp);
+    /**
+     * Check a trapezoid-shaped collider against a rectangular collider for collisions.
+     */
+    static bool _hitCheckDaikeiLR(dCc_c* ccTrp, dCc_c* ccBox);
+
+public:
+    // -----------
+    // Member Data
+    // -----------
+
+    /**
+     * The actor this collider belongs to.
+     */
+    /* 0x04 */ dActor_c* mpOwner;
+
+    /**
+     * A second actor that this collider will not collide with.
+     */
+    /* 0x08 */ dActor_c* mFriendActor;
+
+    /* 0x0C */ u32 unk2; // Unused?
+
+    /**
+     * The next collider in the list.
+     */
+    /* 0x10 */ dCc_c* mpNext;
+    /**
+     * The previous collider in the list.
+     */
+    /* 0x14 */ dCc_c* mpPrev;
+
+    /* 0x18 */ u32 unk3; // Unused?
+
+    /**
+     * The collision data of this collider.
+     */
+    /* 0x1C */ sCcDatNewF mCcData;
+
+    /**
+     * The X or Y offset of the four corners of a trapezoid-shaped collider.
+     *
+     * Relative to the center of the collider.
+     * If mShape is CC_SHAPE_DAIKEI_UD, this is the Y offset.
+     * If mShape is CC_SHAPE_DAIKEI_LR, this is the X offset.
+     */
+    /* 0x40 */ float mTrpOffsets[4];
+
+    /**
+     * The X offset for a collision.
+     *
+     * One entry per category. Each entry describes by how much the collider must be
+     * offset in the X direction in order to not collide with the other collider.
+     */
+    /* 0x50 */ float mCollOffsetX[8];
+    /**
+     * The Y offset for a collision.
+     *
+     * One entry per category. Each entry describes by how much the collider must be
+     * offset in the Y direction in order to not collide with the other collider.
+     */
+    /* 0x70 */ float mCollOffsetY[8];
+
+    /**
+     * The position where the last collision occurred.
+     */
+    /* 0x90 */ mVec2_c mCollPos;
+
+    /**
+     * The categories of the previously collided with colliders.
+     */
+    /* 0x98 */ u16 mCollidedWith;
+    /**
+     * The attack types sent by this collider in the previous collisions.
+     */
+    /* 0x9A */ u16 mAttSent;
+    /**
+     * The attack types received by this collider in the previous collisions.
+     */
+    /* 0x9C */ u16 mAttReceived;
+
+    /**
+     * The shape of the collider. See CC_SHAPE_e.
+     */
+    /* 0x9E */ CC_SHAPE_e mShape;
+
+    /**
+     * The non-collide mask for this collider.
+     *
+     * If the same bit is set in a second actor's non-collide mask,
+     * the two actors will not collide.
+     */
+    /* 0x9F */ u8 mNonCollideMask;
+
+    /**
+     * The layer this collider is on.
+     *
+     * Colliders can only collide with other colliders on the same layer.
+     */
+    /* 0xA0 */ u8 mLayer;
+
+    /**
+     * Flags for this collider. See CC_FLAG_e.
+     */
+    /* 0xA1 */ u8 mFlag;
+
+    /**
+     * Whether this collider has been placed in the collider list.
+     */
+    /* 0xA2 */ bool mIsLinked;
+
+    typedef bool (*hitCheck)(dCc_c*, dCc_c*);
+
+    /**
+     * The hit check function for each combination of collider shapes.
+     *
+     * The first index is the shape of the first collider and the second index
+     * is the shape of the second collider.
+     */
+    static hitCheck _hitCheck[4][4];
+
+    /**
+     * The first collider in the list.
+     */
+    static dCc_c* mEntryN asm("PORT(0x8042A140)");
+    /**
+     * The last collider in the list.
+     */
+    static dCc_c* mEntryB;
+};

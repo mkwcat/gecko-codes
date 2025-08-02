@@ -6,7 +6,7 @@ path_cc = os.path.join(devkitppc, "bin", "powerpc-eabi-gcc")
 path_objcopy = os.path.join(devkitppc, "bin", "powerpc-eabi-objcopy")
 
 ccflags = '-fPIC -Os -fno-rtti -ffreestanding -nodefaultlibs -nostdlib -fno-unwind-tables -fno-exceptions \
--fmerge-all-constants -ffunction-sections -fdata-sections -fno-short-enums -fshort-wchar -std=gnu++2b'
+-fmerge-all-constants -fno-threadsafe-statics -ffunction-sections -fdata-sections -fno-short-enums -fshort-wchar -std=gnu++2b'
 ldflags = '-Wl,--gc-sections -n'
 
 warning_flags = '-Wno-attribute-alias -Wno-invalid-offsetof'
@@ -297,6 +297,7 @@ run_build("nsmbw", "Disable-Powerup-Change-Pause")
 run_build("nsmbw", "Freeze-Any-Enemy")
 run_build("nsmbw", "No-Projectile-Limits")
 run_build("nsmbw", "Midair-Crouching")
+run_build("nsmbw", "Draw-Actor-Collision")
 
 # # New Super Mario Bros. U
 run_build("nsmbu", "Lift-Anything-NSMBU")

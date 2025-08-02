@@ -1,6 +1,6 @@
 #pragma once
 
-#include "d_a_player.hpp"
+#include "d_player/d_a_player.h"
 
 cGCT_IMPORT_DECL(0x8005F900);
 

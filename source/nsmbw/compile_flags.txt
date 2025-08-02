@@ -21,3 +21,4 @@
 -DHAS_EGG=1
 -Iinclude
 -I..
+-I../wii

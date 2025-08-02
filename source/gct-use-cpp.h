@@ -151,7 +151,7 @@ extern "C" void _GCT_Blr()
         _cGCT_IMPORT_MULTI_EXPAND(_cGCT_IMPORT_MULTI_TRIM(_cGCT_IMPORT_MULTI_TRIM(__VA_ARGS__)))
 
 // Standard macros for C++ code
-#define FILL(_START, _END) u8 _##_START[_END - _START]
+#define FILL(_START, _END) char _##_START[_END - _START]
 
 #define ASM_(_CODE...) asm volatile(#_CODE)
 #define ASM(_CODE...) ASM_(_CODE)

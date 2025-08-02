@@ -1,6 +1,6 @@
 #pragma once
 
-#include <dol/framework/f_base.hpp>
+#include "framework/f_base.h"
 
 /**
  * An extension of fBase_c with base kind and name strings. All bases should

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "d_actor.hpp"
+#include "d_actor.h"
 
 class daPlBase_c : public dActor_c
 {
