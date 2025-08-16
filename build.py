@@ -298,8 +298,9 @@ run_build("nsmbw", "Freeze-Any-Enemy")
 run_build("nsmbw", "No-Projectile-Limits")
 run_build("nsmbw", "Midair-Crouching")
 run_build("nsmbw", "Draw-Actor-Collision")
+run_build("nsmbw", "Speed-Up-Everything-But-Player")
 
-# # New Super Mario Bros. U
+# New Super Mario Bros. U
 run_build("nsmbu", "Lift-Anything-NSMBU")
 run_build("nsmbu", "Save-Anytime")
 run_build("nsmbu", "Arbitrary-Course-Load")

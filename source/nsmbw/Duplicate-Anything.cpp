@@ -9,7 +9,6 @@
 #define daLightBlock_c_calcCarryPos 0x808555D0
 #define getCenterPos__12dBaseActor_cCFv 0x8006CED0
 #define ActorList 0x8042A080
-#define FloatMax 0x8042BB38
 #define ActivePhysics_AddToList 0x8008C330
 #define OSReport 0x8015F870
 

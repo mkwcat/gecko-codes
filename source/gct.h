@@ -3,8 +3,8 @@
 // Needed to evaluate macros
 #define _GCT_ASM(...) #__VA_ARGS__
 
-#define GCT_ASM(...)                                                           \
-    asm("# BEGIN GCT ASM\n"                                                    \
+#define GCT_ASM(...)                                                                               \
+    asm("# BEGIN GCT ASM\n"                                                                        \
         ".section .gct_data\n" _GCT_ASM(__VA_ARGS__) "\n# END GCT ASM\n");
 
 asm("    .section .c0_header, \"ax\"\n"
@@ -106,8 +106,17 @@ NAME:;
     .balign 0x8;                                                               \
     .set    NAME##_size, .- NAME##_start;
 
+#define GCT_INSERT_POINTER(ADDRESS, NAME)                                      \
+    .long   0x4E00FFFC;                                                        \
+    b       NAME + 0x4;                                                        \
+    .long   0x4C000000;                                                        \
+    .long   PORT(ADDRESS) & 0x01FFFFFF;                                        \
+    GCT_EXECUTE(NAME);                                                         \
+    blr;
+#define GCT_INSERT_POINTER_END(NAME) GCT_EXECUTE_END(NAME)
+
 #define GCT_WRITE_BRANCH(SRC, DEST)                                            \
-    .long   0xC6000000 | (PORT(SRC) & 0x1FFFFFF);                                    \
+    .long   0xC6000000 | (PORT(SRC) & 0x1FFFFFF);                              \
     .long   PORT(DEST);
 
 // PowerPC utility macros
@@ -173,27 +182,27 @@ NAME:;
       mflr    REG;
 
 #  define BYTE_PTR(REG, SYM, DATA...)                                          \
-      bl      short_##SYM##_end;                                               \
-  short_##SYM:;                                                                \
+      bl      SYM##_end;                                                       \
+  SYM:;                                                                        \
       .byte   DATA;                                                            \
       .balign 0x4;                                                             \
-  short_##SYM##_end:;                                                          \
+  SYM##_end:;                                                                  \
       mflr    REG;
 
 #  define SHORT_PTR(REG, SYM, DATA...)                                         \
-      bl      short_##SYM##_end;                                               \
-  short_##SYM:;                                                                \
+      bl      SYM##_end;                                                       \
+  SYM:;                                                                        \
       .short  DATA;                                                            \
       .balign 0x4;                                                             \
-  short_##SYM##_end:;                                                          \
+  SYM##_end:;                                                                  \
       mflr    REG;
 
 #  define FLOAT_PTR(REG, SYM, DATA...)                                         \
-      bl      short_##SYM##_end;                                               \
-  short_##SYM:;                                                                \
+      bl      SYM##_end;                                                       \
+  SYM:;                                                                        \
       .float  DATA;                                                            \
       .balign 0x4;                                                             \
-  short_##SYM##_end:;                                                          \
+  SYM##_end:;                                                                  \
       mflr    REG;
 
 #  define PTR(REG, NAME)                                                       \
@@ -221,15 +230,17 @@ NAME:;
       mflr    TMP_REG;                                                         \
       lbzu    REG, (NAME) - (.- 0x4)(TMP_REG);
 
+#  define PTR_STB(REG, TMP_REG, NAME)                                          \
+      bl      0x4;                                                             \
+      mflr    TMP_REG;                                                         \
+      stbu    REG, (NAME) - (.- 0x4)(TMP_REG);
+
 #  define PTR_STW(REG, TMP_REG, NAME)                                          \
       bl      0x4;                                                             \
       mflr    TMP_REG;                                                         \
-      stw     REG, (NAME) - (.- 0x4)(TMP_REG);
-
-#  define PTR_STWU(REG, TMP_REG, NAME)                                         \
-      bl      0x4;                                                             \
-      mflr    TMP_REG;                                                         \
       stwu    REG, (NAME) - (.- 0x4)(TMP_REG);
+
+#  define PTR_STWU(REG, TMP_REG, NAME) PTR_STW(REG, TMP_REG, NAME)
 
 #  define STACK_SIZE(REG_BASE, DATA_SIZE)                                      \
       (((32 - (REG_BASE)) << 2) + 8 + (DATA_SIZE))
